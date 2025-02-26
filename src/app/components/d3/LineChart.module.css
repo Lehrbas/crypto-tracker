@@ -1,0 +1,47 @@
+.chartContainer {
+  position: relative;
+  margin-top: 20px;
+}
+
+.tooltip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.focus {
+  pointer-events: none;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+/* Axis and grid styles */
+.grid line {
+  stroke: #e0e0e0;
+  stroke-dasharray: 2, 2;
+}
+
+.grid path {
+  stroke: none;
+}
+
+.axis text {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  fill: #666;
+}
+
+.axis path,
+.axis line {
+  stroke: #ccc;
+  shape-rendering: crispEdges;
+}
