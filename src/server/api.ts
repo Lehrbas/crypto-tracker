@@ -11,9 +11,9 @@ export const getCryptoList = async () => {
   return response.json();
 };
 
-export const getCryptoHistory = async (id: any) => {
+export const getCryptoHistory = async (id: string, days = 30) => {
   const response = await fetch(
-    `${BASE_URL}/coins/${id}/market_chart?vs_currency=usd&days=30`
+    `${BASE_URL}/coins/${id}/market_chart?vs_currency=usd&days=${days}`
   );
   if (!response.ok) {
     throw new Error("Failed to fetch crypto history");

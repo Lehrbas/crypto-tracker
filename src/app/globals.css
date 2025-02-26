@@ -26,6 +26,16 @@ h1 {
   margin: 20px auto;
 }
 
+.dark {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
 svg {
   margin-top: 20px;
 }
