@@ -4,9 +4,9 @@
 
 import { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
-import styles from "./LineChart.module.css";
+import styles from "./StaticLineChart.module.css";
 
-export const LineChart = ({ data }) => {
+export const StaticLineChart = ({ data }) => {
   const chartRef = useRef(null);
   const [tooltip, setTooltip] = useState(null);
 

@@ -1,72 +1,57 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { LineChart } from "@/app/components/d3/LineChart";
-import { getCryptoList, getCryptoHistory } from "@/server/api";
+import { RealTimeLineChart } from "@/app/components/d3/RealTimeLineChart";
+import { StaticLineChart } from "@/app/components/d3/StaticLineChart";
+import { getCoinList, getCoinHistory } from "@/server/api";
 import Spinner from "./components/shared/Spinner";
-import { ActionMeta } from "react-select";
-
-interface Crypto {
-  id: string;
-  name: string;
-  symbol: string;
-}
-
-interface PriceData {
-  timestamp: number;
-  price: number;
-}
-
-interface Option {
-  value: string | number;
-  label: string;
-}
+import { CoinOption, Coin, PriceData } from "./types/coin";
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 export default function Home() {
-  const [cryptoList, setCryptoList] = useState<Crypto[]>([]);
-  const [selectedCrypto, setSelectedCrypto] = useState<Option | null>(null);
+  const [coinOptionList, setCoinOptionList] = useState<Coin[]>([]);
+  const [selectedCoin, setSelectedCoin] = useState<CoinOption | null>(null);
   const [priceHistory, setPriceHistory] = useState<PriceData[]>([]);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [chartMode, setChartMode] = useState<"real-time" | "static">(
+    "real-time"
+  );
 
-  const dateRanges: Option[] = [
+  const dateRanges = [
     { value: 1, label: "1 Day" },
     { value: 7, label: "7 Days" },
     { value: 30, label: "30 Days" },
   ];
 
-  const [selectedDateRange, setSelectedDateRange] = useState<Option>(
-    dateRanges[2]
-  );
+  const [selectedDateRange, setSelectedDateRange] = useState(dateRanges[2]);
 
   useEffect(() => {
-    const fetchCryptoList = async () => {
+    const fetchCoinList = async () => {
       setLoading(true);
       try {
-        const data: Crypto[] = await getCryptoList();
-        setCryptoList(data);
+        const data: Coin[] = await getCoinList();
+        setCoinOptionList(data);
       } catch (err) {
-        setError(
-          "Failed to load cryptocurrency list from CoinGecko API, try again later"
-        );
+        console.log(err);
+        setError("Failed to load cryptocurrency list. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
-    fetchCryptoList();
+    fetchCoinList();
   }, []);
 
   useEffect(() => {
-    if (selectedCrypto) {
-      const fetchCryptoHistory = async () => {
+    if (selectedCoin) {
+      const fetchCoinHistory = async () => {
         setLoading(true);
         try {
-          const data: PriceData[] = await getCryptoHistory(
-            selectedCrypto.value as string,
+          const data: PriceData[] = await getCoinHistory(
+            selectedCoin.value as string,
             selectedDateRange.value as number
           );
           setPriceHistory(data);
@@ -77,34 +62,39 @@ export default function Home() {
           setLoading(false);
         }
       };
-      fetchCryptoHistory();
+      fetchCoinHistory();
     }
-  }, [selectedCrypto, selectedDateRange]);
+  }, [selectedCoin, selectedDateRange]);
 
-  const handleCryptoSelectChange = (
-    newValue: unknown,
-    actionMeta: ActionMeta<unknown>
-  ) => {
+  const handleCoinSelectChange = useCallback(
+    (newValue: unknown) => {
+      if (newValue) {
+        setSelectedCoin(newValue as CoinOption);
+      } else {
+        setSelectedCoin(null);
+      }
+    },
+    [selectedCoin]
+  );
+
+  const handleDateRangeChange = (newValue: any) => {
     if (newValue) {
-      setSelectedCrypto(newValue as Option);
-    } else {
-      setSelectedCrypto(null);
+      setSelectedDateRange(newValue);
     }
   };
 
-  const handleDateRangeChange = (
-    newValue: unknown,
-    actionMeta: ActionMeta<unknown>
-  ) => {
-    if (newValue) {
-      setSelectedDateRange(newValue as Option);
-    }
-  };
-
-  const options: Option[] = cryptoList.map((crypto) => ({
+  const options: CoinOption[] = coinOptionList.map((crypto) => ({
     value: crypto.id,
     label: `${crypto.name} (${crypto.symbol.toUpperCase()})`,
   }));
+
+  // @ts-ignore
+  const coinIdsString = useMemo(() => {
+    // @ts-ignore
+    return coinOptionList.map((coin) => coin.id).join(",");
+  }, [coinOptionList]);
+
+  console.log(coinIdsString);
 
   return (
     <div className={`container ${darkMode ? "dark" : "light"}`}>
@@ -112,7 +102,7 @@ export default function Home() {
         {darkMode ? "Light Mode" : "Dark Mode"}
       </button>
 
-      <h1>Crypto Tracker</h1>
+      <h1>Coin Tracker</h1>
 
       <Select
         options={dateRanges}
@@ -123,16 +113,31 @@ export default function Home() {
 
       <Select
         options={options}
-        onChange={handleCryptoSelectChange}
-        placeholder="Select a cryptocurrency"
+        onChange={handleCoinSelectChange}
+        placeholder="Select crypto"
       />
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {selectedCrypto && (
+      {selectedCoin && (
         <div>
-          <h2>{selectedCrypto.label}</h2>
-          {loading ? <Spinner /> : <LineChart data={priceHistory} />}
+          <h2>{selectedCoin.label}</h2>
+          <button
+            onClick={() =>
+              setChartMode(chartMode === "real-time" ? "static" : "real-time")
+            }
+          >
+            {chartMode === "real-time"
+              ? "Switch to Static Chart"
+              : "Switch to Real-Time Chart"}
+          </button>
+          {loading ? (
+            <Spinner />
+          ) : chartMode === "real-time" ? (
+            <RealTimeLineChart selectedCoin={selectedCoin} />
+          ) : (
+            <StaticLineChart data={priceHistory} />
+          )}
         </div>
       )}
     </div>
