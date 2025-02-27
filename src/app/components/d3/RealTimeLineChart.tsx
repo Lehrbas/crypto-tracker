@@ -13,7 +13,9 @@ interface RealTimeLineChartProps {
   selectedCoin: CoinOption;
 }
 
-export const RealTimeLineChart = (props: RealTimeLineChartProps) => {
+export const RealTimeLineChart: React.FC<RealTimeLineChartProps> = (
+  props: RealTimeLineChartProps
+) => {
   const chartRef = useRef<SVGSVGElement | null>(null);
   const { data } = useWebSocket();
 
@@ -23,7 +25,7 @@ export const RealTimeLineChart = (props: RealTimeLineChartProps) => {
     const svg = d3.select(chartRef.current);
     svg.selectAll("*").remove();
 
-    const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+    const margin = { top: 20, right: 30, bottom: 40, left: 60 };
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -57,7 +59,7 @@ export const RealTimeLineChart = (props: RealTimeLineChartProps) => {
 
     svg
       .append("path")
-      .datum(filteredData.filter((d) => d.coin === props.selectedCoin.value)) // Filter data for the selected coin
+      .datum(filteredData.filter((d) => d.coin === props.selectedCoin.value))
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 2)

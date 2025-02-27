@@ -5,8 +5,13 @@
 import { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 import styles from "./StaticLineChart.module.css";
+import { PriceData } from "@/app/types/coin";
 
-export const StaticLineChart = ({ data }) => {
+interface StaticLineChartProps {
+  data: PriceData[];
+}
+
+export const StaticLineChart: React.FC<StaticLineChartProps> = ({ data }) => {
   const chartRef = useRef(null);
   const [tooltip, setTooltip] = useState(null);
 

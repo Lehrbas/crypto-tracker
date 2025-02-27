@@ -27,15 +27,15 @@ const WebSocketContext = createContext<WebSocketContextType | undefined>(
 
 export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<WebSocketCoinData[]>([]);
-  const wsRef = useRef<WebSocket | null>(null); // Ref to store the WebSocket instance
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // Close the existing WebSocket connection if it exists
+    // Close existing WebSocket connection if it exists
     if (wsRef.current) {
       wsRef.current.close();
     }
 
-    // Create a new WebSocket connection
+    // Create new WebSocket connection
     wsRef.current = new WebSocket(
       `wss://ws.coincap.io/prices?assets=${stringifiedCoinList}`
     );
@@ -48,6 +48,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
         price: parseFloat(price as string),
       }));
       // Slice data to keep only the last 100 data points
+      // If we want a longer chart, we can keep more points
       setData((prevData) => [...prevData, ...updatedData].slice(-100));
     };
 
