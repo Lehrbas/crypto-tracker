@@ -6,7 +6,6 @@ export const getCoinList = async () => {
   const response = await fetch(
     `${BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false`
   );
-  console.log(response);
   if (!response.ok) {
     throw new Error("Failed to fetch CoinGecko API");
   }
@@ -17,7 +16,6 @@ export const getCoinHistory = async (id: string, days = 30) => {
   const response = await fetch(
     `${BASE_URL}/coins/${id}/market_chart?vs_currency=usd&days=${days}`
   );
-  console.log(response);
   if (!response.ok) {
     throw new Error("Failed to fetch crypto history");
   }
